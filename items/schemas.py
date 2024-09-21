@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from enum import Enum
+from uuid import UUID
+from pydantic import BaseModel, EmailStr, condecimal
 
 
 class ItemCreate(BaseModel):
@@ -9,3 +11,17 @@ class ItemResponse(ItemCreate):
 
     class Config:
         from_attributes = True
+
+
+class PaymentTypeEnum(str, Enum):
+    CASH = "cash"
+    CASHLESS = "cashless"
+
+
+class PaymentCreate(BaseModel):
+    pay_type: PaymentTypeEnum
+    amount: condecimal(gt=0, max_digits=10, decimal_places=2)
+
+
+class PaymentResponse(PaymentCreate):
+    id: UUID

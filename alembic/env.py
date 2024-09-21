@@ -7,6 +7,9 @@ from alembic import context
 
 from database import Base, engine
 
+from items.models import ItemDB, Payment
+from users.models import UserDB
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
