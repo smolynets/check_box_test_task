@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi.security import OAuth2PasswordRequestForm
 
-from items.models import Payment
+from items.models import Payment, Product
 from database import get_db
 from auth import get_user, get_password_hash
-from items.schemas import ItemCreate, ItemResponse, PaymentCreate, PaymentResponse
+from items.schemas import PaymentCreate, PaymentResponse
 from auth import (
     get_password_hash,
     get_user,
@@ -34,6 +34,21 @@ def create_payment(
         db.add(new_payment)
         db.commit()
         db.refresh(new_payment)
+        for product_data in payment.products:
+            new_product = Product(
+                name=product_data.name,
+                price_per_unit=product_data.price_per_unit,
+                quantity=product_data.quantity,
+                weight=product_data.weight,
+                payment_id=new_payment.id
+            )
+            db.add(new_product)
+        
+        db.commit()
+        db.refresh(new_payment)
+        new_payment = db.query(Payment).options(joinedload(Payment.products)).filter(
+            Payment.id == new_payment.id
+        ).first()
         return new_payment
     except Exception as e:
         db.rollback()
@@ -44,5 +59,7 @@ def create_payment(
 
 @router.get("/payments")
 async def read_payments(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    payments = db.query(Payment).filter(Payment.owner_id == current_user.id).all()
+    payments = db.query(Payment).options(joinedload(Payment.products)).filter(
+        Payment.owner_id == current_user.id
+    ).all()
     return payments
