@@ -40,10 +40,11 @@ def create_payment(
                 price_per_unit=product_data.price_per_unit,
                 quantity=product_data.quantity,
                 weight=product_data.weight,
-                payment_id=new_payment.id
+                payment_id=new_payment.id,
+                total=product_data.total
             )
             db.add(new_product)
-        
+        new_payment.total=payment.total
         db.commit()
         db.refresh(new_payment)
         new_payment = db.query(Payment).options(joinedload(Payment.products)).filter(
