@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from fastapi.security import OAuth2PasswordRequestForm
@@ -66,3 +67,16 @@ async def read_payments(current_user: User = Depends(get_current_active_user), d
         Payment.owner_id == current_user.id
     ).all()
     return payments
+
+
+@router.get("/payments/{id}")
+async def get_payment_by_id(
+    payment_id: UUID, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+):
+    payment = db.query(Payment).options(joinedload(Payment.products)).filter(
+        Payment.owner_id == current_user.id,
+        Payment.id == payment_id
+    ).first()
+    if payment is None:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    return payment
