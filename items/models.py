@@ -17,7 +17,8 @@ class Payment(Base):
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     additional_data = Column(JSON)
     products = relationship("Product", back_populates="payment")
-    total = Column(Numeric(10, 2))
+    payment_total = Column(Numeric(10, 2))
+    rest = Column(Numeric(10, 2))
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     def __str__(self):
@@ -34,7 +35,7 @@ class Product(Base):
     weight = Column(Numeric(10, 2))
     payment_id = Column(UUID(as_uuid=True), ForeignKey('payments.id'), nullable=False)
     payment = relationship("Payment", back_populates="products")
-    total = Column(Numeric(10, 2))
+    product_total = Column(Numeric(10, 2))
 
     def __str__(self):
         return f"<Product(id={self.id}, name={self.name}, price={self.price_per_unit}, quantity={self.quantity})>"

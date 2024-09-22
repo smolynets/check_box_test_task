@@ -29,7 +29,8 @@ def create_payment(
             pay_type=payment.pay_type,
             amount=payment.amount,
             owner_id=current_user.id,
-            additional_data=payment.additional_data
+            additional_data=payment.additional_data,
+            rest=payment.rest
         )
         db.add(new_payment)
         db.commit()
@@ -41,10 +42,10 @@ def create_payment(
                 quantity=product_data.quantity,
                 weight=product_data.weight,
                 payment_id=new_payment.id,
-                total=product_data.total
+                product_total=product_data.product_total
             )
             db.add(new_product)
-        new_payment.total=payment.total
+        new_payment.total=payment.payment_total
         db.commit()
         db.refresh(new_payment)
         new_payment = db.query(Payment).options(joinedload(Payment.products)).filter(

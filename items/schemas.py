@@ -13,7 +13,10 @@ class ProductCreate(BaseModel):
     weight: Optional[condecimal(gt=0, max_digits=10, decimal_places=2)] = None
 
     @computed_field
-    def total(self) -> Decimal:
+    def product_total(self) -> Decimal:
+        """
+        Get total price of particular product in payment
+        """
         total_value = self.price_per_unit * self.quantity
         return total_value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
@@ -30,9 +33,20 @@ class PaymentCreate(BaseModel):
     additional_data: Optional[Dict[str, Any]] = None
 
     @computed_field
-    def total(self) -> Decimal:
-        total_value = sum([x.total for x in self.products])
+    def payment_total(self) -> Decimal:
+        """
+        Get total price of all product in payment
+        """
+        total_value = sum([x.product_total for x in self.products])
         return total_value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    @computed_field
+    def rest(self) -> Decimal:
+        """
+        Get rest money 
+        """
+        rest = self.amount - self.payment_total
+        return rest.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
 class PaymentResponse(PaymentCreate):
