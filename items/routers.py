@@ -1,5 +1,6 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -62,10 +63,32 @@ def create_payment(
 
 
 @router.get("/payments")
-async def read_payments(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    payments = db.query(Payment).options(joinedload(Payment.products)).filter(
+async def read_payments(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+    pay_type: str = Query(None),
+    start_date: datetime = Query(None),
+    end_date: datetime = Query(None),
+    min_total: float = Query(None),
+    max_total: float = Query(None)
+):
+    """
+    use date filter - /items/payments?start_date=2024-08-01&end_date=2024-08-01'
+    """
+    query = db.query(Payment).options(joinedload(Payment.products)).filter(
         Payment.owner_id == current_user.id
-    ).all()
+    )
+    if pay_type:
+        query = query.filter(Payment.pay_type == pay_type)
+    if start_date:
+        query = query.filter(Payment.created_at >= start_date)
+    if end_date:
+        query = query.filter(Payment.created_at <= end_date)
+    if min_total is not None:
+        query = query.filter(Payment.payment_total >= min_total)
+    if max_total is not None:
+        query = query.filter(Payment.payment_total <= max_total)
+    payments = query.all()
     return payments
 
 
