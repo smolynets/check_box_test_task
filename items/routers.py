@@ -17,6 +17,8 @@ from auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 from users.schemas import User
+from users.models import UserDB
+from items.utils import PaymentFormatter
 
 
 router = APIRouter()
@@ -70,7 +72,9 @@ async def read_payments(
     start_date: datetime = Query(None),
     end_date: datetime = Query(None),
     min_total: float = Query(None),
-    max_total: float = Query(None)
+    max_total: float = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, gt=0)
 ):
     """
     use date filter - /items/payments?start_date=2024-08-01&end_date=2024-08-01'
@@ -89,6 +93,8 @@ async def read_payments(
     if max_total is not None:
         query = query.filter(Payment.payment_total <= max_total)
     payments = query.all()
+    offset = (page - 1) * page_size
+    payments = query.offset(offset).limit(page_size).all()
     return payments
 
 
@@ -103,3 +109,13 @@ async def get_payment_by_id(
     if payment is None:
         raise HTTPException(status_code=404, detail="Payment not found")
     return payment
+
+
+@router.get("/payment/{receipt_link}")
+def get_payment(receipt_link: str, line_width: int = 32, db: Session = Depends(get_db)):
+    payment = db.query(Payment).filter(Payment.receipt_link == receipt_link).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    owner = db.query(UserDB).filter(UserDB.id == payment.owner_id).first()
+    formatter = PaymentFormatter(payment, owner, line_width)
+    return {"receipt_text": formatter.format_receipt()}

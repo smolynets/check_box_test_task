@@ -1,11 +1,19 @@
 import enum
 import uuid
+import random
+import string
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, Numeric, JSON, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from database import Base
+
+def generate_unique_link():
+    """
+    Creation the unique link for payment
+    """
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=10))
 
 
 class Payment(Base):
@@ -19,6 +27,7 @@ class Payment(Base):
     products = relationship("Product", back_populates="payment")
     payment_total = Column(Numeric(10, 2), nullable=False)
     rest = Column(Numeric(10, 2))
+    receipt_link = Column(String, unique=True, default=generate_unique_link, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     def __str__(self):

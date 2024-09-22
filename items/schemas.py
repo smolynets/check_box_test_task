@@ -69,6 +69,7 @@ class PaymentResponse(PaymentCreate):
     id: UUID
     products: List[ProductCreate]
     additional_data: Optional[Dict[str, Any]] = None
+    receipt_link: str
     created_at: datetime
 
     class Config:
