@@ -1,6 +1,6 @@
 from enum import Enum
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, condecimal, computed_field, root_validator, ValidationError
+from pydantic import BaseModel, EmailStr, condecimal, computed_field, ValidationError, model_validator
 from typing import List, Optional, Dict, Any
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
@@ -12,12 +12,26 @@ class ProductCreate(BaseModel):
     quantity: Optional[condecimal(gt=0, max_digits=10, decimal_places=2)] = None
     weight: Optional[condecimal(gt=0, max_digits=10, decimal_places=2)] = None
 
+    @model_validator(mode='before')
+    def check_quantity_or_weight(cls, values):
+        if isinstance(values, dict):
+            quantity = values.get('quantity')
+            weight = values.get('weight')
+
+            if not quantity and not weight:
+                raise ValueError('Select quantity or weight - one of them.')
+            if quantity and weight:
+                raise ValueError('Select quantity or weight - not both of them.')
+        return values
+
+
     @computed_field
     def product_total(self) -> Decimal:
         """
         Get total price of particular product in payment
         """
-        total_value = self.price_per_unit * self.quantity
+        product_value = self.price_per_unit * self.quantity if self.quantity else self.weight
+        total_value = product_value
         return total_value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
@@ -45,8 +59,10 @@ class PaymentCreate(BaseModel):
         """
         Get rest money 
         """
-        rest = self.amount - self.payment_total
-        return rest.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        if self.amount > self.payment_total:
+            rest = self.amount - self.payment_total
+            return rest.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return 0
 
 
 class PaymentResponse(PaymentCreate):
