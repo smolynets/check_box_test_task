@@ -30,7 +30,7 @@ class ProductCreate(BaseModel):
         """
         Get total price of particular product in payment
         """
-        product_value = self.price_per_unit * self.quantity if self.quantity else self.weight
+        product_value = self.price_per_unit * self.quantity if self.quantity else self.price_per_unit * self.weight
         total_value = product_value
         return total_value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
