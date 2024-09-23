@@ -21,7 +21,7 @@ router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(
+def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ) -> Token:
@@ -39,11 +39,11 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 @router.get("/users/me/", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 @router.post("/register", response_model=User)
-async def register_user(user: UserRegister, db: Session = Depends(get_db)):
+def register_user(user: UserRegister, db: Session = Depends(get_db)):
     if get_user(db, user.username):
         raise HTTPException(status_code=400, detail="Username already registered")
     if db.query(UserDB).filter(UserDB.email == user.email).first():

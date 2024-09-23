@@ -67,7 +67,7 @@ def create_payment(
 
 
 @router.get("/payments")
-async def read_payments(
+def read_payments(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
     pay_type: str = Query(None),
@@ -101,7 +101,7 @@ async def read_payments(
 
 
 @router.get("/payments/{id}")
-async def get_payment_by_id(
+def get_payment_by_id(
     payment_id: UUID, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
     payment = db.query(Payment).options(joinedload(Payment.products)).filter(
