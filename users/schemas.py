@@ -13,6 +13,7 @@ class User(BaseModel):
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
+    fop_title: str
 
 class UserInDB(User):
     hashed_password: str
@@ -22,3 +23,4 @@ class UserRegister(BaseModel):
     username: str
     email: EmailStr
     password: str
+    fop_title: str

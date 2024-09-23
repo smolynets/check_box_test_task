@@ -3,6 +3,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import FileResponse
+import tempfile
 
 from items.models import Payment, Product
 from database import get_db
@@ -118,4 +120,13 @@ def get_payment(receipt_link: str, line_width: int = 32, db: Session = Depends(g
         raise HTTPException(status_code=404, detail="Receipt not found")
     owner = db.query(UserDB).filter(UserDB.id == payment.owner_id).first()
     formatter = PaymentFormatter(payment, owner, line_width)
-    return {"receipt_text": formatter.format_receipt()}
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
+        content = formatter.format_receipt()
+        tmp_file.write(content.encode('utf-8'))
+        tmp_file_path = tmp_file.name
+    response = FileResponse(tmp_file_path, media_type='text/plain', filename="receipt.txt")
+    @router.on_event("shutdown")
+    async def cleanup():
+        if os.path.exists(tmp_file_path):
+            os.remove(tmp_file_path)
+    return response

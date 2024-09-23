@@ -10,3 +10,4 @@ class UserDB(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
+    fop_title = Column(String, default=False)

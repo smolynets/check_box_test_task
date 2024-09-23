@@ -49,7 +49,12 @@ async def register_user(user: UserRegister, db: Session = Depends(get_db)):
     if db.query(UserDB).filter(UserDB.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = get_password_hash(user.password)
-    new_user = UserDB(username=user.username, email=user.email, hashed_password=hashed_password)
+    new_user = UserDB(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password,
+        fop_title=user.fop_title
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

@@ -21,7 +21,7 @@ class PaymentFormatter:
     def format_receipt(self):
         date_obj = datetime.fromisoformat(str(self.payment.created_at))
         lines = [
-            f"ФОП {self.owner.username}".center(self.line_width),
+            f"ФОП {self.owner.fop_title}".center(self.line_width),
             "=" * self.line_width,
             *[
                 self.format_item(
@@ -35,6 +35,7 @@ class PaymentFormatter:
             ],
             "=" * self.line_width,
             f"сума {self.payment.amount:.2f}",
+            f"повна вартість {self.payment.payment_total:.2f}",
             f"решта {self.payment.rest:.2f}",
             f"метод оплати {self.payment.pay_type}",
             "=" * self.line_width,
