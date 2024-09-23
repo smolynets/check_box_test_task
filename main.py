@@ -19,12 +19,17 @@ from auth import (
 )
 from users.routers import router as users_router
 from payments.routers import router as payments_router
+import config
 
 
 Base.metadata.create_all(bind=engine)
 
 
-app = FastAPI()
+app = FastAPI(
+    title=f"{config.SERVICE_NAME} API",
+    description=f"API for the {config.SERVICE_NAME} project",
+    debug=config.DEBUG
+)
 
 
 app.include_router(users_router, prefix="/users", tags=["users"])
