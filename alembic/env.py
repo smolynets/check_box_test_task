@@ -7,7 +7,7 @@ from alembic import context
 
 from database import Base, engine
 
-from items.models import Payment
+from payments.models import Payment
 from users.models import UserDB
 
 # this is the Alembic Config object, which provides

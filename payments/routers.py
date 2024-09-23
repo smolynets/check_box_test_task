@@ -6,10 +6,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse
 import tempfile
 
-from items.models import Payment, Product
+from payments.models import Payment, Product
 from database import get_db
 from auth import get_user, get_password_hash
-from items.schemas import PaymentCreate, PaymentResponse
+from payments.schemas import PaymentCreate, PaymentResponse
 from auth import (
     get_password_hash,
     get_user,
@@ -20,7 +20,7 @@ from auth import (
 )
 from users.schemas import User
 from users.models import UserDB
-from items.utils import PaymentFormatter
+from payments.utils import PaymentFormatter
 
 
 router = APIRouter()
@@ -79,7 +79,7 @@ async def read_payments(
     page_size: int = Query(10, gt=0)
 ):
     """
-    use date filter - /items/payments?start_date=2024-08-01&end_date=2024-08-01'
+    use date filter - /payments/payments?start_date=2024-08-01&end_date=2024-08-01'
     """
     query = db.query(Payment).options(joinedload(Payment.products)).filter(
         Payment.owner_id == current_user.id

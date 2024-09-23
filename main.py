@@ -18,7 +18,7 @@ from auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 from users.routers import router as users_router
-from items.routers import router as items_router
+from payments.routers import router as payments_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -28,7 +28,7 @@ app = FastAPI()
 
 
 app.include_router(users_router, prefix="/users", tags=["users"])
-app.include_router(items_router, prefix="/items", tags=["items"])
+app.include_router(payments_router, prefix="/payments", tags=["payments"])
 
 # remove temp file for /payment/{receipt_link} endpoint
 temporary_files = []
