@@ -26,6 +26,21 @@ services:
     networks:
       - check_box_network
 
+  test_db:
+    image: postgres:15
+    container_name: test_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: test_postgres
+      POSTGRES_PASSWORD: test_postgres
+      POSTGRES_DB: test_postgres
+    expose:
+      - 5433
+    volumes:
+      - postgres_data:/var/lib/postgresql/test_data
+    networks:
+      - check_box_network
+
 volumes:
   postgres_data:
 

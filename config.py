@@ -9,5 +9,7 @@ POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "psql_password")
 POSTGRES_DB = os.getenv("POSTGRES_DB", "psql_db")
 
+TEST_POSTGRES_PORT = os.getenv("TEST_POSTGRES_PORT", "5433")
+
 SERVICE_NAME = os.getenv("SERVICE_NAME", "fastapi_boilerplate")
 DEBUG = bool(int(os.getenv("DEBUG", "0")))
