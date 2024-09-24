@@ -123,7 +123,7 @@ def get_payment_by_id(
 
 
 @router.get(
-    "/checks/{receipt_link}",
+    "/customer-checks/{receipt_link}",
     summary="Get check by link",
     description="Get check by link in text description. No need user authentication"
 )
