@@ -43,3 +43,9 @@
 
 ##### Сайт буде доступний за наступним посиланням:
 	http://0.0.0.0:8000
+
+##### Для запуску всіх тестів:
+	docker exec -t backend python -m pytest
+
+##### Для запуску тесту:
+	docker exec -t backend python -m pytest -k test_name
