@@ -7,9 +7,9 @@ class PaymentFormatter:
         self.owner = owner
         self.line_width = line_width
 
-    def format_item(self, name, price, quantity, product_total, is_last):
+    def format_item(self, name, price, product_quantity, product_total, is_last):
         lines = [
-            f"кількість {quantity:.2f}",
+            f"кількість {product_quantity:.2f}",
             f"ціна {price:.2f}",
             f"товар {name}",
             f"вартість {product_total:.2f}"
@@ -27,7 +27,7 @@ class PaymentFormatter:
                 self.format_item(
                     prod.name,
                     prod.price_per_unit,
-                    prod.quantity,
+                    prod.quantity if prod.quantity is not None else prod.weight,
                     prod.product_total,
                     is_last=(i == len(self.payment.products) - 1)
                 )

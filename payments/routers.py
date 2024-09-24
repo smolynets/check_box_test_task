@@ -26,10 +26,19 @@ from payments.utils import PaymentFormatter
 router = APIRouter()
 
 
-@router.post("/payments/", response_model=PaymentResponse)
+@router.post(
+    "/checks/",
+    response_model=PaymentResponse,
+    summary="Create a new payment",
+    description="This endpoint allows users to create a new payment. It requires user authentication. "
+                "Provide quantity or weight only for one check."
+)
 def create_payment(
     payment: PaymentCreate, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
     ):
+    """
+    Create new check
+    """
     try:
         new_payment = Payment(
             pay_type=payment.pay_type,
@@ -66,7 +75,7 @@ def create_payment(
         db.close()
 
 
-@router.get("/payments")
+@router.get("/checks", summary="List of checks", description="List of all checks. It requires user authentication")
 def read_payments(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -100,7 +109,7 @@ def read_payments(
     return payments
 
 
-@router.get("/payments/{id}")
+@router.get("/checks/{id}", summary="Get check", description="Get one check by id. It requires user authentication")
 def get_payment_by_id(
     payment_id: UUID, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ):
@@ -113,7 +122,11 @@ def get_payment_by_id(
     return payment
 
 
-@router.get("/payment/{receipt_link}")
+@router.get(
+    "/checks/{receipt_link}",
+    summary="Get check by link",
+    description="Get check by link in text description. No need user authentication"
+)
 def get_payment(receipt_link: str, line_width: int = 32, db: Session = Depends(get_db)):
     payment = db.query(Payment).filter(Payment.receipt_link == receipt_link).first()
     if not payment:

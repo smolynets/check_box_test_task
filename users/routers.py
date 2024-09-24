@@ -20,7 +20,9 @@ from auth import (
 router = APIRouter()
 
 
-@router.post("/token", response_model=Token)
+@router.post(
+    "/token", response_model=Token, summary="Login", description="Login by username and password. Returns JWT token"
+)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
@@ -38,11 +40,11 @@ def login_for_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-@router.get("/users/me/", response_model=User)
+@router.get("/users/me/", response_model=User, summary="About me", description="Get info about current logged user")
 def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
-@router.post("/register", response_model=User)
+@router.post("/register", response_model=User, summary="Register user", description="Register new user for login")
 def register_user(user: UserRegister, db: Session = Depends(get_db)):
     if get_user(db, user.username):
         raise HTTPException(status_code=400, detail="Username already registered")
